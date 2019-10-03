@@ -2,6 +2,7 @@ use ["downloader", "files", "forms", "functional", "http", "java", "json", "std"
 
 include "includes/constants.own"
 include "includes/gui.own"
+include "includes/config.own"
 
 config = initConfig()
 
@@ -18,27 +19,6 @@ if config.saveFolderPath == "" {
 }
 if !exists(config.saveFolderPath) {
       logLabel.setText(logLabel.getText() + "<font color=\"red\">save folder path [" + config.saveFolderPath + "] is not exists</font><br>")
-}
-
-def initConfig() {
-   if !exists(CONFIG_PATH) {
-      // записываем пустой конфиг
-      saveConfig(CONFIG_TEMPLATE)
-      return CONFIG_TEMPLATE
-   }
-   // читаем конфиг
-   configFile = fopen(CONFIG_PATH, "r")
-   jsonString = readText(configFile)
-   fclose(configFile)
-   return jsondecode(jsonString)
-}
-
-def saveConfig(newConfig) {
-   println "saving config..."
-   jsonString = jsonencode(newConfig)
-   configFile = fopen(CONFIG_PATH, "w")
-   writeLine(configFile, jsonString)
-   fclose(configFile)
 }
 
 def toParams(obj) {
