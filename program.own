@@ -13,49 +13,48 @@ waitingGaugeIndex = 0
 
 // Check config
 if config.botToken == "" {
-      logLabel.setText(logLabel.getText() + "<font color=\"red\">bot token is not set</font><br>")
+   logLabel.setText(logLabel.getText() + "<font color=\"red\">bot token is not set</font><br>")
 }
 if config.saveFolderPath == "" {
    logLabel.setText(logLabel.getText() + "<font color=\"red\">save folder path is not set</font><br>")
 }
 if !exists(config.saveFolderPath) {
-      logLabel.setText(logLabel.getText() + "<font color=\"red\">save folder path [" + config.saveFolderPath + "] is not exists</font><br>")
+   logLabel.setText(logLabel.getText() + "<font color=\"red\">save folder path [" + config.saveFolderPath + "] is not exists</font><br>")
 }
 
 bot = TelegramBot(config.botToken)
 
 def downloadProgress(progress, bytesDownloaded, bytesMax) {
-  bar = "#" * (progress / 2)
-  progressStr = sprintf("%-50s %d%% %.2f / %.2f", bar, progress, bytesDownloaded / MBYTES, bytesMax/MBYTES)
+   bar = "#" * (progress / 2)
+   progressStr = sprintf("%-50s %d%% %.2f / %.2f", bar, progress, bytesDownloaded / MBYTES, bytesMax/MBYTES)
    progressBarLabel.setText(progressStr)
 }
 
 def processAudio(audio) {
-
-  fileId = audio["file_id"]
-  performer = audio["performer"]
-  title = audio["title"]
-  size = audio["file_size"]
-  duration = audio["duration"]
-  //thumb = audio["thumb"]["file_id"] // PhotoSize
-  def storeAudio(fileJson) {
-    filePath = fileJson["result"]["file_path"]
-    println fileJson["result"]
-    ext = substring(filePath, lastIndexOf(filePath, "."))
-    name = performer + " - " + title + ext
+fileId = audio["file_id"]
+   performer = audio["performer"]
+   title = audio["title"]
+   size = audio["file_size"]
+   duration = audio["duration"]
+   //thumb = audio["thumb"]["file_id"] // PhotoSize
+   def storeAudio(fileJson) {
+      filePath = fileJson["result"]["file_path"]
+      println fileJson["result"]
+      ext = substring(filePath, lastIndexOf(filePath, "."))
+      name = performer + " - " + title + ext
 // todo: filtr name
-    path = config.saveFolderPath + name
-    logStr = sprintf("Downloading %s<br>size: %.2f MiB, duration: %d", name, size/MBYTES, duration)
-    pushLog(logStr)
-    downloader(bot.createFileUrl(bot, filePath), path, ::downloadProgress)
-    pushLog("Download done!")
-    writeTags(path, performer, title, default(audio["thumb"], {}))
-  }
+      path = config.saveFolderPath + name
+      logStr = sprintf("Downloading %s<br>size: %.2f MiB, duration: %d", name, size/MBYTES, duration)
+      pushLog(logStr)
+      downloader(bot.createFileUrl(bot, filePath), path, ::downloadProgress)
+      pushLog("Download done!")
+      writeTags(path, performer, title, default(audio["thumb"], {}))
+   }
 
-  bot.getFile(bot, fileId, ::storeAudio)
-  pushLog("Done!")
-  progressBarLabel.setText("done")
-  echo (audio)
+   bot.getFile(bot, fileId, ::storeAudio)
+   pushLog("Done!")
+   progressBarLabel.setText("done")
+   echo (audio)
 }
 
 def pushLog(text) {
@@ -114,6 +113,7 @@ def writeTags(path, artist, title, thumb = {}) {
     
    AudioFileIO.write(af)
 }
+
 def updateWaitingGauge() {
    labels = ["*", "**", "***"]
    waitingLabel.setText(labels[waitingGaugeIndex % 3])
@@ -158,3 +158,4 @@ def waitingUpdates() {
    pushLog("Stopped waiting")
    //startButton.setText("Start")
 }
+
