@@ -1,156 +1,24 @@
 use ["downloader", "files", "forms", "functional", "http", "java", "json", "std", "types"]
 
 include "includes/constants.own"
+include "includes/gui.own"
 
 config = initConfig()
-
-
 
 isWorked = false
 isStopped = true
 waitingGaugeIndex = 0
 
-//def buildUI() {
-   startButton = newButton("Start")
-   configButton = newButton("Config")
-   aboutButton = newButton("About")
-   saveConfigButton = newButton("Save")
-   cancelConfigButton = newButton("Cancel")
-
-   botTokenField = newTextField()
-   saveFolderPathField = newTextField()
-   usernameField = newTextField()
-
-   logLabel = newLabel("<html>Program log<br>")
-   aboutLabel = newLabel(ABOUT_TEXT)
-   waitingLabel = newLabel("*")
-   progressBarLabel = newLabel("done")
-   botTokenLabel = newLabel("Bot token")
-   saveFolderPathLabel = newLabel("Save folder")
-   userNameLabel = newLabel("Your tg username")
-
-   mainWindow = newWindow("AudioFold")
-   configWindow = newWindow("Config AudioFold")
-   aboutWindow = newWindow("About AudioFold")
-
-   // Init button callbacks
-   startButton.onClick(def () {
-      if isWorked && !isStopped {
-         isWorked = false
-      } else {
-         if !isStopped return 0 
-         isWorked = true
-         //startButton.setText("Stop")
-         thread(::waitingUpdates)
-      }
-   })
-
-   configButton.onClick(def () {
-      if isWorked && !isStopped {
-         isWorked = false
-      }
-      botTokenField.setText(config.botToken)
-      saveFolderPathField.setText(config.saveFolderPath)
-      usernameField.setText(config.username)
-      configWindow.setVisible()
-   })
-
-   saveConfigButton.onClick(def () {
-      config.botToken = trim(botTokenField.getText())
-      config.saveFolderPath = trim(saveFolderPathField.getText())
-      config.username = trim(usernameField.getText())
-      saveConfig(config)
-      configWindow.dispose()
-   })
-
-   cancelConfigButton.onClick(def () {
-      configWindow.dispose()
-   })
-
-   aboutButton.onClick(def () {
-      aboutWindow.setVisible()
-   })
-
-   // Init buttonPanel
-   buttonPanel = newPanel()
-   buttonPanel.setLayout(boxLayout(buttonPanel, BoxLayout.LINE_AXIS))
-   buttonPanel.add(startButton)
-   buttonPanel.add(configButton)
-   buttonPanel.add(aboutButton)
-
-   // Init buttonConfigPanel
-   buttonConfigPanel = newPanel()
-   buttonConfigPanel.setLayout(boxLayout(buttonConfigPanel, BoxLayout.LINE_AXIS))
-   buttonConfigPanel.add(saveConfigButton)
-   buttonConfigPanel.add(cancelConfigButton)
-
-   // Init fieldsConfigPanel
-   fieldsConfigPanel = newPanel()
-   fieldsConfigPanel.setLayout(boxLayout(fieldsConfigPanel, BoxLayout.Y_AXIS))
-   fieldsConfigPanel.add(botTokenLabel)
-   fieldsConfigPanel.add(botTokenField)
-   fieldsConfigPanel.add(saveFolderPathLabel)
-   fieldsConfigPanel.add(saveFolderPathField)
-   fieldsConfigPanel.add(userNameLabel)
-   fieldsConfigPanel.add(usernameField)
-
-   // Init statusPanel
-   statusPanel = newPanel()
-   statusPanel.setLayout(boxLayout(statusPanel, BoxLayout.X_AXIS))
-   statusPanel.add(waitingLabel)
-   statusPanel.add(progressBarLabel)
-
-   // Init mainPanel
-   mainPanel = newPanel(borderLayout(HGAP, VGAP))
-   mainPanel.setPreferredSize(470, 400)
-   mainPanel.add(logLabel, BorderLayout.CENTER)
-   mainPanel.add(buttonPanel, BorderLayout.NORTH)
-   mainPanel.add(statusPanel, BorderLayout.SOUTH)
-
-   // Init configPanel
-   configPanel = newPanel(borderLayout(HGAP, VGAP))
-   configPanel.setPreferredSize(250, 300)
-   configPanel.add(fieldsConfigPanel, BorderLayout.NORTH)
-   configPanel.add(buttonConfigPanel, BorderLayout.SOUTH)
-
-   // Init aboutPanel
-   aboutPanel = newPanel(borderLayout(HGAP, VGAP))
-   aboutPanel.setPreferredSize(250, 300)
-   aboutPanel.add(aboutLabel, BorderLayout.CENTER)
-
-   // Init mainWindow
-   mainWindow.setMinimumSize(200, 220)
-   mainWindow.setLocationByPlatform()
-   mainWindow.add(mainPanel)
-   mainWindow.pack()
-   mainWindow.setVisible()
-
-   // Init configWindow
-   configWindow.setMinimumSize(200, 220)
-   configWindow.setLocationByPlatform()
-   configWindow.setDefaultCloseOperation(DISPOSE_ON_CLOSE)
-   configWindow.add(configPanel)
-   configWindow.pack()
-   
-
-   // Init aboutWindow
-   aboutWindow.setMinimumSize(200, 220)
-   aboutWindow.setLocationByPlatform()
-   aboutWindow.setDefaultCloseOperation(DISPOSE_ON_CLOSE)
-   aboutWindow.add(aboutPanel)
-   aboutWindow.pack()
-   
-   // Check config
-   if config.botToken == "" {
+// Check config
+if config.botToken == "" {
       logLabel.setText(logLabel.getText() + "<font color=\"red\">bot token is not set</font><br>")
-   }
-   if config.saveFolderPath == "" {
-      logLabel.setText(logLabel.getText() + "<font color=\"red\">save folder path is not set</font><br>")
-   }
-   if !exists(config.saveFolderPath) {
+}
+if config.saveFolderPath == "" {
+   logLabel.setText(logLabel.getText() + "<font color=\"red\">save folder path is not set</font><br>")
+}
+if !exists(config.saveFolderPath) {
       logLabel.setText(logLabel.getText() + "<font color=\"red\">save folder path [" + config.saveFolderPath + "] is not exists</font><br>")
-   }
-//}
+}
 
 def initConfig() {
    if !exists(CONFIG_PATH) {
