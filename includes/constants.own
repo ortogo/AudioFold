@@ -8,3 +8,4 @@ CONFIG_TEMPLATE = { "botToken":"", "saveFolderPath": "", "username": "", "lastUp
 HGAP = 10
 VGAP = 10
 MBYTES = 1048576.0
+
