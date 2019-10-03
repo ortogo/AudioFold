@@ -3,6 +3,7 @@ use ["downloader", "files", "forms", "functional", "http", "java", "json", "std"
 include "includes/constants.own"
 include "includes/gui.own"
 include "includes/config.own"
+include "includes/telegram_api.own"
 
 config = initConfig()
 
@@ -21,29 +22,7 @@ if !exists(config.saveFolderPath) {
       logLabel.setText(logLabel.getText() + "<font color=\"red\">save folder path [" + config.saveFolderPath + "] is not exists</font><br>")
 }
 
-def toParams(obj) {
-  str = ""
-  for k, v : obj
-    str += k + "=" + v + "&"
-  return str
-}
-
-def createFileUrl(filePath, token) = "https://api.telegram.org/file/bot"+token+"/" + filePath
-def createRawUrl(method, params, token = "") = "https://api.telegram.org/bot" + token + "/" + method + "?"+params+"access_token="+token
-def createUrl(method, params, token = "") = createRawUrl(method, toParams(params), token)
-def invokeJson(method, params, callback) = http(createUrl(method, params, config.botToken), combine(::jsondecode, callback))
-def invoke(method, params, callback) = http(createUrl(method, params, config.botToken), callback)
-
-def sendMessage(text = "", chatId = 1) {
-  invoke("sendMessage", {
-    "chat_id": chatId,
-    "text": text
-  }, ::echo)
-}
-
-def getFile(fileId, callback) {
-    return invokeJson("getFile", {"file_id":fileId}, callback)
-}
+bot = TelegramBot(config.botToken)
 
 def downloadProgress(progress, bytesDownloaded, bytesMax) {
   bar = "#" * (progress / 2)
@@ -68,18 +47,16 @@ def processAudio(audio) {
     path = config.saveFolderPath + name
     logStr = sprintf("Downloading %s<br>size: %.2f MiB, duration: %d", name, size/MBYTES, duration)
     pushLog(logStr)
-    downloader(createFileUrl(filePath, config.botToken), path, ::downloadProgress)
+    downloader(bot.createFileUrl(bot, filePath), path, ::downloadProgress)
     pushLog("Download done!")
     writeTags(path, performer, title, default(audio["thumb"], {}))
   }
 
-  getFile(fileId, ::storeAudio)
+  bot.getFile(bot, fileId, ::storeAudio)
   pushLog("Done!")
   progressBarLabel.setText("done")
   echo (audio)
 }
-
-def getUpdates() = invokeJson("getUpdates", {"offset": 0}, ::processAudio)
 
 def pushLog(text) {
    logLabel.setText(logLabel.getText() + text + "<br>")
@@ -116,12 +93,12 @@ def writeTags(path, artist, title, thumb = {}) {
             imagePath = "./image"
             logStr = sprintf("Downloading %s<br>size: %.2f MiB, size %dx%d", imagePath, fileSize/MBYTES, thumbWidth, thumbHeight)
             pushLog(logStr)
-            downloader(createFileUrl(filePath, config.botToken), imagePath, ::downloadProgress)
+            downloader(bot.createFileUrl(bot, filePath), imagePath, ::downloadProgress)
             pushLog("Download done!")
          }
 
          // загрузка изображения
-         getFile(thumb["file_id"], ::storeImage)
+         bot.getFile(bot, thumb["file_id"], ::storeImage)
          
          imagePath = "./image"
          imageFile = File.new(imagePath)
@@ -147,7 +124,7 @@ def waitingUpdates() {
    isStopped = false
    pushLog("Started. Waiting for updates...")
    while isWorked {
-      updates = invokeJson("getUpdates", {"offset": config.lastUpdateId+1}, def(update) {
+      updates = bot.getUpdates(bot, config.lastUpdateId+1, def(update) {
          //println update
          results = update["result"]
          for result : results {
