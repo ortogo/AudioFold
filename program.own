@@ -9,7 +9,6 @@ config = initConfig()
 
 isWorked = false
 isStopped = true
-waitingGaugeIndex = 0
 
 // Check config
 if config.botToken == "" {
@@ -55,10 +54,6 @@ fileId = audio["file_id"]
    pushLog("Done!")
    progressBarLabel.setText("done")
    echo (audio)
-}
-
-def pushLog(text) {
-   logLabel.setText(logLabel.getText() + text + "<br>")
 }
 
 def writeTags(path, artist, title, thumb = {}) {
@@ -112,12 +107,6 @@ def writeTags(path, artist, title, thumb = {}) {
    }
     
    AudioFileIO.write(af)
-}
-
-def updateWaitingGauge() {
-   labels = ["*", "**", "***"]
-   waitingLabel.setText(labels[waitingGaugeIndex % 3])
-   waitingGaugeIndex++
 }
 
 def waitingUpdates() {

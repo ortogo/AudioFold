@@ -1,3 +1,5 @@
+waitingGaugeIndex = 0
+
 startButton = newButton("Start")
 configButton = newButton("Config")
 aboutButton = newButton("About")
@@ -126,4 +128,14 @@ aboutWindow.setLocationByPlatform()
 aboutWindow.setDefaultCloseOperation(DISPOSE_ON_CLOSE)
 aboutWindow.add(aboutPanel)
 aboutWindow.pack()
+
+def updateWaitingGauge() {
+   labels = ["*", "**", "***"]
+   waitingLabel.setText(labels[waitingGaugeIndex % 3])
+   waitingGaugeIndex++
+}
+
+def pushLog(text) {
+   logLabel.setText(logLabel.getText() + text + "<br>")
+}
 
