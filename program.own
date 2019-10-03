@@ -1,0 +1,344 @@
+use ["downloader", "files", "forms", "functional", "http", "java", "json", "std", "types"]
+
+VERSION = "0.0.2"
+AUTHOR = "vl@volk"
+
+ABOUT_TEXT = "<html><center>About AudioFold v" + VERSION + "</center><br><p>Telegram audio saver bot. Only for personal use</p><br><br>Author: <b>" + AUTHOR + "</b><br>&copy;&nbsp;aNNiMON developers community"
+CONFIG_PATH = "./config.json"
+CONFIG_TEMPLATE = { "botToken":"", "saveFolderPath": "", "username": "", "lastUpdateId": 0}
+
+HGAP = 10
+VGAP = 10
+MBYTES = 1048576.0
+
+config = initConfig()
+
+
+
+isWorked = false
+isStopped = true
+waitingGaugeIndex = 0
+
+//def buildUI() {
+   startButton = newButton("Start")
+   configButton = newButton("Config")
+   aboutButton = newButton("About")
+   saveConfigButton = newButton("Save")
+   cancelConfigButton = newButton("Cancel")
+
+   botTokenField = newTextField()
+   saveFolderPathField = newTextField()
+   usernameField = newTextField()
+
+   logLabel = newLabel("<html>Program log<br>")
+   aboutLabel = newLabel(ABOUT_TEXT)
+   waitingLabel = newLabel("*")
+   progressBarLabel = newLabel("done")
+   botTokenLabel = newLabel("Bot token")
+   saveFolderPathLabel = newLabel("Save folder")
+   userNameLabel = newLabel("Your tg username")
+
+   mainWindow = newWindow("AudioFold")
+   configWindow = newWindow("Config AudioFold")
+   aboutWindow = newWindow("About AudioFold")
+
+   // Init button callbacks
+   startButton.onClick(def () {
+      if isWorked && !isStopped {
+         isWorked = false
+      } else {
+         if !isStopped return 0 
+         isWorked = true
+         //startButton.setText("Stop")
+         thread(::waitingUpdates)
+      }
+   })
+
+   configButton.onClick(def () {
+      if isWorked && !isStopped {
+         isWorked = false
+      }
+      botTokenField.setText(config.botToken)
+      saveFolderPathField.setText(config.saveFolderPath)
+      usernameField.setText(config.username)
+      configWindow.setVisible()
+   })
+
+   saveConfigButton.onClick(def () {
+      config.botToken = trim(botTokenField.getText())
+      config.saveFolderPath = trim(saveFolderPathField.getText())
+      config.username = trim(usernameField.getText())
+      saveConfig(config)
+      configWindow.dispose()
+   })
+
+   cancelConfigButton.onClick(def () {
+      configWindow.dispose()
+   })
+
+   aboutButton.onClick(def () {
+      aboutWindow.setVisible()
+   })
+
+   // Init buttonPanel
+   buttonPanel = newPanel()
+   buttonPanel.setLayout(boxLayout(buttonPanel, BoxLayout.LINE_AXIS))
+   buttonPanel.add(startButton)
+   buttonPanel.add(configButton)
+   buttonPanel.add(aboutButton)
+
+   // Init buttonConfigPanel
+   buttonConfigPanel = newPanel()
+   buttonConfigPanel.setLayout(boxLayout(buttonConfigPanel, BoxLayout.LINE_AXIS))
+   buttonConfigPanel.add(saveConfigButton)
+   buttonConfigPanel.add(cancelConfigButton)
+
+   // Init fieldsConfigPanel
+   fieldsConfigPanel = newPanel()
+   fieldsConfigPanel.setLayout(boxLayout(fieldsConfigPanel, BoxLayout.Y_AXIS))
+   fieldsConfigPanel.add(botTokenLabel)
+   fieldsConfigPanel.add(botTokenField)
+   fieldsConfigPanel.add(saveFolderPathLabel)
+   fieldsConfigPanel.add(saveFolderPathField)
+   fieldsConfigPanel.add(userNameLabel)
+   fieldsConfigPanel.add(usernameField)
+
+   // Init statusPanel
+   statusPanel = newPanel()
+   statusPanel.setLayout(boxLayout(statusPanel, BoxLayout.X_AXIS))
+   statusPanel.add(waitingLabel)
+   statusPanel.add(progressBarLabel)
+
+   // Init mainPanel
+   mainPanel = newPanel(borderLayout(HGAP, VGAP))
+   mainPanel.setPreferredSize(470, 400)
+   mainPanel.add(logLabel, BorderLayout.CENTER)
+   mainPanel.add(buttonPanel, BorderLayout.NORTH)
+   mainPanel.add(statusPanel, BorderLayout.SOUTH)
+
+   // Init configPanel
+   configPanel = newPanel(borderLayout(HGAP, VGAP))
+   configPanel.setPreferredSize(250, 300)
+   configPanel.add(fieldsConfigPanel, BorderLayout.NORTH)
+   configPanel.add(buttonConfigPanel, BorderLayout.SOUTH)
+
+   // Init aboutPanel
+   aboutPanel = newPanel(borderLayout(HGAP, VGAP))
+   aboutPanel.setPreferredSize(250, 300)
+   aboutPanel.add(aboutLabel, BorderLayout.CENTER)
+
+   // Init mainWindow
+   mainWindow.setMinimumSize(200, 220)
+   mainWindow.setLocationByPlatform()
+   mainWindow.add(mainPanel)
+   mainWindow.pack()
+   mainWindow.setVisible()
+
+   // Init configWindow
+   configWindow.setMinimumSize(200, 220)
+   configWindow.setLocationByPlatform()
+   configWindow.setDefaultCloseOperation(DISPOSE_ON_CLOSE)
+   configWindow.add(configPanel)
+   configWindow.pack()
+   
+
+   // Init aboutWindow
+   aboutWindow.setMinimumSize(200, 220)
+   aboutWindow.setLocationByPlatform()
+   aboutWindow.setDefaultCloseOperation(DISPOSE_ON_CLOSE)
+   aboutWindow.add(aboutPanel)
+   aboutWindow.pack()
+   
+   // Check config
+   if config.botToken == "" {
+      logLabel.setText(logLabel.getText() + "<font color=\"red\">bot token is not set</font><br>")
+   }
+   if config.saveFolderPath == "" {
+      logLabel.setText(logLabel.getText() + "<font color=\"red\">save folder path is not set</font><br>")
+   }
+   if !exists(config.saveFolderPath) {
+      logLabel.setText(logLabel.getText() + "<font color=\"red\">save folder path [" + config.saveFolderPath + "] is not exists</font><br>")
+   }
+//}
+
+def initConfig() {
+   if !exists(CONFIG_PATH) {
+      // записываем пустой конфиг
+      saveConfig(CONFIG_TEMPLATE)
+      return CONFIG_TEMPLATE
+   }
+   // читаем конфиг
+   configFile = fopen(CONFIG_PATH, "r")
+   jsonString = readText(configFile)
+   fclose(configFile)
+   return jsondecode(jsonString)
+}
+
+def saveConfig(newConfig) {
+   println "saving config..."
+   jsonString = jsonencode(newConfig)
+   configFile = fopen(CONFIG_PATH, "w")
+   writeLine(configFile, jsonString)
+   fclose(configFile)
+}
+
+def toParams(obj) {
+  str = ""
+  for k, v : obj
+    str += k + "=" + v + "&"
+  return str
+}
+
+def createFileUrl(filePath, token) = "https://api.telegram.org/file/bot"+token+"/" + filePath
+def createRawUrl(method, params, token = "") = "https://api.telegram.org/bot" + token + "/" + method + "?"+params+"access_token="+token
+def createUrl(method, params, token = "") = createRawUrl(method, toParams(params), token)
+def invokeJson(method, params, callback) = http(createUrl(method, params, config.botToken), combine(::jsondecode, callback))
+def invoke(method, params, callback) = http(createUrl(method, params, config.botToken), callback)
+
+def sendMessage(text = "", chatId = 1) {
+  invoke("sendMessage", {
+    "chat_id": chatId,
+    "text": text
+  }, ::echo)
+}
+
+def getFile(fileId, callback) {
+    return invokeJson("getFile", {"file_id":fileId}, callback)
+}
+
+def downloadProgress(progress, bytesDownloaded, bytesMax) {
+  bar = "#" * (progress / 2)
+  progressStr = sprintf("%-50s %d%% %.2f / %.2f", bar, progress, bytesDownloaded / MBYTES, bytesMax/MBYTES)
+   progressBarLabel.setText(progressStr)
+}
+
+def processAudio(audio) {
+
+  fileId = audio["file_id"]
+  performer = audio["performer"]
+  title = audio["title"]
+  size = audio["file_size"]
+  duration = audio["duration"]
+  //thumb = audio["thumb"]["file_id"] // PhotoSize
+  def storeAudio(fileJson) {
+    filePath = fileJson["result"]["file_path"]
+    println fileJson["result"]
+    ext = substring(filePath, lastIndexOf(filePath, "."))
+    name = performer + " - " + title + ext
+// todo: filtr name
+    path = config.saveFolderPath + name
+    logStr = sprintf("Downloading %s<br>size: %.2f MiB, duration: %d", name, size/MBYTES, duration)
+    pushLog(logStr)
+    downloader(createFileUrl(filePath, config.botToken), path, ::downloadProgress)
+    pushLog("Download done!")
+    writeTags(path, performer, title, default(audio["thumb"], {}))
+  }
+
+  getFile(fileId, ::storeAudio)
+  pushLog("Done!")
+  progressBarLabel.setText("done")
+  echo (audio)
+}
+
+def getUpdates() = invokeJson("getUpdates", {"offset": 0}, ::processAudio)
+
+def pushLog(text) {
+   logLabel.setText(logLabel.getText() + text + "<br>")
+}
+
+def writeTags(path, artist, title, thumb = {}) {
+   AudioFileIO = newClass("org.jaudiotagger.audio.AudioFileIO")
+   FieldKey = newClass("org.jaudiotagger.tag.FieldKey")
+   File = newClass("java.io.File")
+   storedFile = File.new(path)
+
+   af = AudioFileIO.read(storedFile)
+
+   tag = af.getTag()
+   // проверяем есть ли автор, если нет, то пишем теги
+   if trim(string(tag.getFirst(FieldKey.ARTIST))) == "" {
+      pushLog("Writing tags...")
+      tag = af.createDefaultTag()
+      tag.setField(FieldKey.ARTIST, [artist,])
+      tag.setField(FieldKey.TITLE, [title,])
+      
+      // есть картинка
+      if length(thumb) > 0 {
+         pushLog("Writing artwork...")
+         pushLog("Downloading image..")
+
+         // колбек для загрузки изображения
+         def storeImage(fileJson) {
+            filePath = fileJson["result"]["file_path"]
+            fileSize = thumb["file_size"]
+            thumbWidth = thumb["width"]
+            thumbHeight = thumb["height"]
+
+            imagePath = "./image"
+            logStr = sprintf("Downloading %s<br>size: %.2f MiB, size %dx%d", imagePath, fileSize/MBYTES, thumbWidth, thumbHeight)
+            pushLog(logStr)
+            downloader(createFileUrl(filePath, config.botToken), imagePath, ::downloadProgress)
+            pushLog("Download done!")
+         }
+
+         // загрузка изображения
+         getFile(thumb["file_id"], ::storeImage)
+         
+         imagePath = "./image"
+         imageFile = File.new(imagePath)
+
+         Artwork = newClass("org.jaudiotagger.tag.images.StandardArtwork")
+         art = Artwork.new()
+         art.setFromFile(imageFile)
+         tag.setField(art)
+         delete(imagePath)
+      }
+      af.setTag(tag)
+   }
+    
+   AudioFileIO.write(af)
+}
+def updateWaitingGauge() {
+   labels = ["*", "**", "***"]
+   waitingLabel.setText(labels[waitingGaugeIndex % 3])
+   waitingGaugeIndex++
+}
+
+def waitingUpdates() {
+   isStopped = false
+   pushLog("Started. Waiting for updates...")
+   while isWorked {
+      updates = invokeJson("getUpdates", {"offset": config.lastUpdateId+1}, def(update) {
+         //println update
+         results = update["result"]
+         for result : results {
+            updateId = int(result["update_id"])
+            if config.lastUpdateId < updateId {
+               config.lastUpdateId = updateId
+            }
+            println config.lastUpdateId
+            pushLog("Update: " + config.lastUpdateId)
+
+            if default(result["message"]["chat"], "") != "" {
+               chatUsername = default(result["message"]["chat"]["username"], "")
+               if trim(chatUsername) != trim(config.username) {
+                  pushLog("Knok knok from " + chatUsername)
+                  continue
+               }
+            }
+            if default(result["message"]["audio"], "") != "" {
+               //println result["message"]
+               processAudio(result["message"]["audio"])
+            } else {
+               pushLog("No audio, text: " + default(result["message"]["text"], "null"))
+            }
+         }
+      })
+      updateWaitingGauge()
+      sleep(500)
+   }
+   saveConfig(config)
+   isStopped = true
+   pushLog("Stopped waiting")
+   //startButton.setText("Start")
+}
