@@ -1,15 +1,6 @@
 use ["downloader", "files", "forms", "functional", "http", "java", "json", "std", "types"]
 
-VERSION = "0.0.2"
-AUTHOR = "vl@volk"
-
-ABOUT_TEXT = "<html><center>About AudioFold v" + VERSION + "</center><br><p>Telegram audio saver bot. Only for personal use</p><br><br>Author: <b>" + AUTHOR + "</b><br>&copy;&nbsp;aNNiMON developers community"
-CONFIG_PATH = "./config.json"
-CONFIG_TEMPLATE = { "botToken":"", "saveFolderPath": "", "username": "", "lastUpdateId": 0}
-
-HGAP = 10
-VGAP = 10
-MBYTES = 1048576.0
+include "includes/constants.own"
 
 config = initConfig()
 
