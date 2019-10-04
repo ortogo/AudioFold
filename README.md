@@ -25,5 +25,4 @@ Open config and set your personal variables
 ## Screenshots
 
 ![Main window](https://raw.githubusercontent.com/ortogo/audiofold/master/images/main.PNG)
-![Config window](https://raw.githubusercontent.com/ortogo/audiofold/master/images/config.PNG)
-![About window](https://raw.githubusercontent.com/ortogo/audiofold/master/images/about.PNG)
+![Config and about window](https://raw.githubusercontent.com/ortogo/audiofold/master/images/config_and_about.PNG)
