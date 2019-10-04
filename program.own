@@ -4,6 +4,7 @@ include "includes/constants.own"
 include "includes/gui.own"
 include "includes/config.own"
 include "includes/telegram_api.own"
+include "includes/audiotagger.own"
 
 config = initConfig()
 
@@ -47,66 +48,32 @@ fileId = audio["file_id"]
       pushLog(logStr)
       downloader(bot.createFileUrl(bot, filePath), path, ::downloadProgress)
       pushLog("Download done!")
-      writeTags(path, performer, title, default(audio["thumb"], {}))
+      thumbPath = ""
+      if default(audio["thumb"], "") != "" {
+         pushLog("Downloading image..")
+         // колбек для загрузки изображения
+         def storeImage(fileJson) {
+            filePath = fileJson["result"]["file_path"]
+            fileSize = audio["thumb"]["file_size"]
+            thumbWidth = audio["thumb"]["width"]
+            thumbHeight = audio["thumb"]["height"]
+            thumbPath = "./thumb"
+            logStr = sprintf("Downloading %s<br>size: %.2f MiB, size %dx%d", thumbPath, fileSize/MBYTES, thumbWidth, thumbHeight)
+            pushLog(logStr)
+            downloader(bot.createFileUrl(bot, filePath), thumbPath, ::downloadProgress)
+            pushLog("Download done!")
+         }
+
+         // загрузка изображения
+         bot.getFile(bot, audio["thumb"]["file_id"], ::storeImage)
+      }
+      writeTags(path, performer, title, thumbPath)
    }
 
    bot.getFile(bot, fileId, ::storeAudio)
    pushLog("Done!")
    progressBarLabel.setText("done")
    echo (audio)
-}
-
-def writeTags(path, artist, title, thumb = {}) {
-   AudioFileIO = newClass("org.jaudiotagger.audio.AudioFileIO")
-   FieldKey = newClass("org.jaudiotagger.tag.FieldKey")
-   File = newClass("java.io.File")
-   storedFile = File.new(path)
-
-   af = AudioFileIO.read(storedFile)
-
-   tag = af.getTag()
-   // проверяем есть ли автор, если нет, то пишем теги
-   if trim(string(tag.getFirst(FieldKey.ARTIST))) == "" {
-      pushLog("Writing tags...")
-      tag = af.createDefaultTag()
-      tag.setField(FieldKey.ARTIST, [artist,])
-      tag.setField(FieldKey.TITLE, [title,])
-      
-      // есть картинка
-      if length(thumb) > 0 {
-         pushLog("Writing artwork...")
-         pushLog("Downloading image..")
-
-         // колбек для загрузки изображения
-         def storeImage(fileJson) {
-            filePath = fileJson["result"]["file_path"]
-            fileSize = thumb["file_size"]
-            thumbWidth = thumb["width"]
-            thumbHeight = thumb["height"]
-
-            imagePath = "./image"
-            logStr = sprintf("Downloading %s<br>size: %.2f MiB, size %dx%d", imagePath, fileSize/MBYTES, thumbWidth, thumbHeight)
-            pushLog(logStr)
-            downloader(bot.createFileUrl(bot, filePath), imagePath, ::downloadProgress)
-            pushLog("Download done!")
-         }
-
-         // загрузка изображения
-         bot.getFile(bot, thumb["file_id"], ::storeImage)
-         
-         imagePath = "./image"
-         imageFile = File.new(imagePath)
-
-         Artwork = newClass("org.jaudiotagger.tag.images.StandardArtwork")
-         art = Artwork.new()
-         art.setFromFile(imageFile)
-         tag.setField(art)
-         delete(imagePath)
-      }
-      af.setTag(tag)
-   }
-    
-   AudioFileIO.write(af)
 }
 
 def waitingUpdates() {
