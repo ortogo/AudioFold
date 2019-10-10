@@ -14,10 +14,12 @@ usernameField = newTextField()
 logTextArea = newTextArea("Program log\n")
 aboutLabel = newLabel(ABOUT_TEXT)
 waitingLabel = newLabel("*")
-progressBarLabel = newLabel("done")
 botTokenLabel = newLabel("Bot token")
 saveFolderPathLabel = newLabel("Save folder")
 userNameLabel = newLabel("Your tg username")
+
+progressBar = newProgressBar()
+progressBar.setValue(100)
 
 mainWindow = newWindow("AudioFold")
 configWindow = newWindow("Config AudioFold")
@@ -102,7 +104,7 @@ fieldsConfigPanel.add(usernameField)
 statusPanel = newPanel()
 statusPanel.setLayout(boxLayout(statusPanel, BoxLayout.X_AXIS))
 statusPanel.add(waitingLabel)
-statusPanel.add(progressBarLabel)
+statusPanel.add(progressBar)
 
 // Init mainPanel
 mainPanel = newPanel(borderLayout(HGAP, VGAP))

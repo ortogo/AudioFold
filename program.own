@@ -16,9 +16,7 @@ checkConfig()
 bot = TelegramBot(config.botToken)
 
 def downloadProgress(progress, bytesDownloaded, bytesMax) {
-   bar = "#" * (progress / 2)
-   progressStr = sprintf("%-50s %d%% %.2f / %.2f", bar, progress, bytesDownloaded / MBYTES, bytesMax/MBYTES)
-   progressBarLabel.setText(progressStr)
+   progressBar.setValue(progress)
 }
 
 def processAudio(audio) {
@@ -37,6 +35,7 @@ fileId = audio["file_id"]
       path = config.saveFolderPath + name
       logStr = sprintf(DOWNLOAD_AUDIO_TEMPLATE, name, size/MBYTES, duration)
       pushLog(logStr)
+      progressBar.setValue(0)
       downloader(bot.createFileUrl(bot, filePath), path, ::downloadProgress)
       pushLog("Download done!")
       thumbPath = ""
@@ -51,6 +50,7 @@ fileId = audio["file_id"]
             thumbPath = "./thumb"
             logStr = sprintf(DOWNLOAD_IMAGE_TEMPLATE, thumbPath, fileSize/MBYTES, thumbWidth, thumbHeight)
             pushLog(logStr)
+            progressBar.setValue(0)
             downloader(bot.createFileUrl(bot, filePath), thumbPath, ::downloadProgress)
             pushLog("Download done!")
          }
@@ -66,7 +66,6 @@ fileId = audio["file_id"]
 
    bot.getFile(bot, fileId, ::storeAudio)
    pushLog("Done!")
-   progressBarLabel.setText("done")
    echo (audio)
 }
 
