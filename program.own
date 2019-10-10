@@ -104,8 +104,8 @@ def handleUpdates() {
          pushLog("Update: " + config.lastUpdateId)
 
          if default(result["message"]["chat"], "") != "" {
-            chatUsername = default(result["message"]["chat"]["username"], "")
-            if trim(chatUsername) != trim(config.username) {
+            chatUsername = toLowerCase(default(result["message"]["chat"]["username"], ""))
+            if trim(chatUsername) != trim(toLowerCase(config.username)) {
                pushLog("Knok knok from " + chatUsername)
                return 0
             }
