@@ -13,7 +13,7 @@ isStopped = true
 
 checkConfig()
 
-bot = TelegramBot(config.botToken)
+bot = new TelegramBot(config.botToken)
 
 def downloadProgress(progress, bytesDownloaded, bytesMax) {
    progressBar.setValue(progress)
@@ -37,7 +37,7 @@ fileId = audio["file_id"]
       pushLog(logStr)
       progressBar.setIndeterminate(false)
       progressBar.setValue(0)
-      downloader(bot.createFileUrl(bot, filePath), path, ::downloadProgress)
+      downloader(bot.createFileUrl(filePath), path, ::downloadProgress)
       pushLog("Download done!")
       thumbPath = ""
       if default(audio["thumb"], "") != "" {
@@ -53,12 +53,12 @@ fileId = audio["file_id"]
             pushLog(logStr)
             progressBar.setIndeterminate(false)
             progressBar.setValue(0)
-            downloader(bot.createFileUrl(bot, filePath), thumbPath, ::downloadProgress)
+            downloader(bot.createFileUrl(filePath), thumbPath, ::downloadProgress)
             pushLog("Download done!")
          }
 
          // загрузка изображения
-         bot.getFile(bot, audio["thumb"]["file_id"], ::storeImage)
+         bot.getFile(audio["thumb"]["file_id"], ::storeImage)
       }
       writeTags(path, performer, title, thumbPath)
       if thumbPath != "" {
@@ -66,7 +66,7 @@ fileId = audio["file_id"]
       }
    }
 
-   bot.getFile(bot, fileId, ::storeAudio)
+   bot.getFile(fileId, ::storeAudio)
    pushLog("Done!")
    progressBar.setIndeterminate(true)
    echo (audio)
@@ -92,7 +92,7 @@ def waitingUpdates() {
 }
 
 def handleUpdates() {
-   bot.getUpdates(bot, config.lastUpdateId+1, def(update) {
+   bot.getUpdates(config.lastUpdateId+1, def(update) {
       //println update
       results = update["result"]
       for result : results {

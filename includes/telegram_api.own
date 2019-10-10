@@ -1,4 +1,4 @@
-class TelegramBot(token) {
+class TelegramBot {
 
     def TelegramBot(token) {
         this.token = token
