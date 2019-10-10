@@ -1,39 +1,57 @@
-def TelegramBot(token) {
-    return {
-        "token": token,
-        "toParams": def(obj) {
-            str = ""
-            for k, v : obj
-                str += k + "=" + v + "&"
-            return str
-        },
-        "createFileUrl": def(bot, filePath) {
-            return "https://api.telegram.org/file/bot" + bot.token + "/" + filePath
-        },
-        "getFile": def(bot, fileId, callback) {
-            return bot.invokeJson(bot, "getFile", {"file_id":fileId}, callback)
-        },
-        "createRawUrl": def(bot, method, params) {
-            return "https://api.telegram.org/bot" + bot.token + "/" + method + "?" + params + "access_token=" + bot.token
-        },
-        "createUrl": def(bot, method, params) {
-            return bot.createRawUrl(bot, method, bot.toParams(params))
-        },
-        "invokeJson": def(bot, method, params, callback) {
-            return http(bot.createUrl(bot, method, params), combine(::jsondecode, callback))
-        },
-        "invoke": def(bot, method, params, callback) {
-            return http(bot.createUrl(bot, method, params), callback)
-        },
-        "sendMessage": def(bot, text = "", chatId = 1) {
-            return bot.invoke("sendMessage", {
-                "chat_id": chatId,
-                "text": text
-            }, ::echo)
-        },
-        "getUpdates": def(bot, offset, callback) {
-            return bot.invokeJson(bot, "getUpdates", {"offset": offset}, callback)
-        }
+class TelegramBot(token) {
+
+    def TelegramBot(token) {
+        this.token = token
+    }
+
+    def setToken(token) {
+        this.token = token
+    }
+
+    def getToken() {
+        return token
+    }
+
+    def toParams (obj) {
+        str = ""
+        for k, v : obj
+            str += k + "=" + v + "&"
+        return str
+    }
+
+    def createFileUrl(filePath) {
+        return "https://api.telegram.org/file/bot" + this.token + "/" + filePath
+    }
+
+    def getFile(fileId, callback) {
+        return this.invokeJson("getFile", {"file_id":fileId}, callback)
+    }
+
+    def createRawUrl(method, params) {
+        return "https://api.telegram.org/bot" + this.token + "/" + method + "?" + params + "access_token=" + this.token
+    }
+
+    def createUrl(method, params) {
+        return this.createRawUrl(method, this.toParams(params))
+    }
+
+    def invokeJson(method, params, callback) {
+        return http(this.createUrl(method, params), combine(::jsondecode, callback))
+    }
+
+    def invoke(method, params, callback) {
+        return http(this.createUrl(method, params), callback)
+    }
+
+    def sendMessage(text = "", chatId = 1) {
+        return this.invoke("sendMessage", {
+            "chat_id": chatId,
+            "text": text
+        }, ::echo)
+    }
+
+    def getUpdates(offset, callback) {
+        return this.invokeJson("getUpdates", {"offset": offset}, callback)
     }
 }
 
