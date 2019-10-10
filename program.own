@@ -11,16 +11,7 @@ config = initConfig()
 isWorked = false
 isStopped = true
 
-// Check config
-if trim(config.botToken) == "" {
-   pushLog("Error: bot token is not set!!!")
-}
-if trim(config.saveFolderPath) == "" {
-   pushLog("Error: save folder path is not set!!!")
-}
-if !exists(config.saveFolderPath) {
-   pushLog("Error: save folder path [" + config.saveFolderPath + "] is not exists!!!")
-}
+checkConfig()
 
 bot = TelegramBot(config.botToken)
 

@@ -56,6 +56,7 @@ saveConfigButton.onClick(def () {
    config.username = trim(usernameField.getText())
    saveConfig(config)
    configWindow.dispose()
+   checkConfig()
 })
 
 cancelConfigButton.onClick(def () {
@@ -145,3 +146,17 @@ def pushLog(text) {
    logTextArea.setText(logTextArea.getText() + text + "\n")
 }
 
+def checkConfig() {
+   if trim(config.botToken) == "" {
+      pushLog("Error: bot token is not set!!!")
+   }
+   if trim(config.username) == "" {
+      pushLog("Error: your username is not set!!!")
+   }
+   if trim(config.saveFolderPath) == "" {
+      pushLog("Error: save folder path is not set!!!")
+   }
+   if !exists(config.saveFolderPath) {
+      pushLog("Error: save folder path [" + config.saveFolderPath + "] is not exists!!!")
+   }
+}
