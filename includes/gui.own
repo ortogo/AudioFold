@@ -13,7 +13,6 @@ usernameField = newTextField()
 
 logTextArea = newTextArea("Program log\n")
 aboutLabel = newLabel(ABOUT_TEXT)
-waitingLabel = newLabel("*")
 botTokenLabel = newLabel("Bot token")
 saveFolderPathLabel = newLabel("Save folder")
 userNameLabel = newLabel("Your tg username")
@@ -40,6 +39,7 @@ startButton.onClick(def () {
       if !isStopped return 0 
       isWorked = true
       startButton.setText("Stop")
+      progressBar.setIndeterminate(true)
       thread(::waitingUpdates)
    }
 })
@@ -103,7 +103,6 @@ fieldsConfigPanel.add(usernameField)
 // Init statusPanel
 statusPanel = newPanel()
 statusPanel.setLayout(boxLayout(statusPanel, BoxLayout.X_AXIS))
-statusPanel.add(waitingLabel)
 statusPanel.add(progressBar)
 
 // Init mainPanel
@@ -145,12 +144,6 @@ aboutWindow.setLocationByPlatform()
 aboutWindow.setDefaultCloseOperation(DISPOSE_ON_CLOSE)
 aboutWindow.add(aboutPanel)
 aboutWindow.pack()
-
-def updateWaitingGauge() {
-   labels = ["*", "**", "***"]
-   waitingLabel.setText(labels[waitingGaugeIndex % 3])
-   waitingGaugeIndex++
-}
 
 def pushLog(text) {
    logTextArea.setText(logTextArea.getText() + text + "\n")
