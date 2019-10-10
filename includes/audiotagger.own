@@ -5,13 +5,13 @@ def writeTags(path, artist, title, thumbPath = "") {
 
    storedFile = new File(path)
    af = AudioFileIO.read(storedFile)
-   tag = af.getTag()
+   tag = default(af.getTag(), af.createDefaultTag())
    // проверяем есть ли автор, если нет, то пишем теги
-   if trim(string(tag.getFirst(FieldKey.ARTIST))) == "" {
+   if trim(string(tag.getFirst(FieldKey.valueOf("ARTIST")))) == "" {
       pushLog("Writing tags...")
       tag = af.createDefaultTag()
-      tag.setField(FieldKey.ARTIST, [artist,])
-      tag.setField(FieldKey.TITLE, [title,])
+      tag.setField(FieldKey.valueOf("ARTIST"), [artist,])
+      tag.setField(FieldKey.valueOf("TITLE"), [title,])
       // есть картинка
       if length(thumbPath) > 0 {
         pushLog("Writing thumb...")
