@@ -3,6 +3,7 @@ waitingGaugeIndex = 0
 startButton = newButton("Start")
 configButton = newButton("Config")
 aboutButton = newButton("About")
+clearLogButton = newButton("Clear log")
 saveConfigButton = newButton("Save")
 cancelConfigButton = newButton("Cancel")
 
@@ -56,6 +57,7 @@ saveConfigButton.onClick(def () {
    config.username = trim(usernameField.getText())
    saveConfig(config)
    configWindow.dispose()
+   clearLog()
    checkConfig()
 })
 
@@ -67,12 +69,17 @@ aboutButton.onClick(def () {
    aboutWindow.setVisible()
 })
 
+clearLogButton.onClick(def () {
+   clearLog()
+})
+
 // Init buttonPanel
 buttonPanel = newPanel()
 buttonPanel.setLayout(boxLayout(buttonPanel, BoxLayout.LINE_AXIS))
 buttonPanel.add(startButton)
 buttonPanel.add(configButton)
 buttonPanel.add(aboutButton)
+buttonPanel.add(clearLogButton)
 
 // Init buttonConfigPanel
 buttonConfigPanel = newPanel()
@@ -159,4 +166,8 @@ def checkConfig() {
    if !exists(config.saveFolderPath) {
       pushLog("Error: save folder path [" + config.saveFolderPath + "] is not exists!!!")
    }
+}
+
+def clearLog() {
+   logTextArea.setText("Program log\n")
 }
