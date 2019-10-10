@@ -22,6 +22,12 @@ mainWindow = newWindow("AudioFold")
 configWindow = newWindow("Config AudioFold")
 aboutWindow = newWindow("About AudioFold")
 
+mainWindow.addWindowListener(def(type, event) {
+   if event.id == WindowEvent.WINDOW_CLOSING {
+      saveConfig(config)
+   }
+})
+
 // Init button callbacks
 startButton.onClick(def () {
    if isWorked && !isStopped {
