@@ -22,7 +22,6 @@ def writeTags(path, artist, title, thumbPath = "") {
         art = new Artwork()
         art.setFromFile(imageFile)
         tag.setField(art)
-        delete(thumbPath)
       }
       af.setTag(tag)
    }

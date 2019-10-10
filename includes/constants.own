@@ -6,6 +6,8 @@ CONFIG_PATH = "./config.json"
 CONFIG_TEMPLATE = { "botToken":"", "saveFolderPath": "", "username": "", "lastUpdateId": 0}
 
 EXCEPTION_TEMPLATE = "Bot doesn't work, because you config is wrong or disconected. Error: [%s] %s"
+DOWNLOAD_IMAGE_TEMPLATE = "Downloading %s\nsize: %.2f MiB, size %dx%d"
+DOWNLOAD_AUDIO_TEMPLATE = "Downloading %s\nsize: %.2f MiB, duration: %d"
 
 HGAP = 10
 VGAP = 10

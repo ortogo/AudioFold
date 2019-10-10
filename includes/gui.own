@@ -26,6 +26,7 @@ aboutWindow = newWindow("About AudioFold")
 mainWindow.addWindowListener(def(type, event) {
    if event.id == WindowEvent.WINDOW_CLOSING {
       saveConfig(config)
+      isWorked = false
    }
 })
 
@@ -36,7 +37,7 @@ startButton.onClick(def () {
    } else {
       if !isStopped return 0 
       isWorked = true
-      //startButton.setText("Stop")
+      startButton.setText("Stop")
       thread(::waitingUpdates)
    }
 })
@@ -106,7 +107,7 @@ statusPanel.add(progressBarLabel)
 // Init mainPanel
 mainPanel = newPanel(borderLayout(HGAP, VGAP))
 mainPanel.setPreferredSize(470, 400)
-mainPanel.add(logTextArea, BorderLayout.CENTER)
+mainPanel.add(newScrollPane(logTextArea), BorderLayout.CENTER)
 mainPanel.add(buttonPanel, BorderLayout.NORTH)
 mainPanel.add(statusPanel, BorderLayout.SOUTH)
 
