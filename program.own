@@ -12,14 +12,14 @@ isWorked = false
 isStopped = true
 
 // Check config
-if config.botToken == "" {
-   logLabel.setText(logLabel.getText() + "<font color=\"red\">bot token is not set</font><br>")
+if trim(config.botToken) == "" {
+   pushLog("Error: bot token is not set!!!")
 }
-if config.saveFolderPath == "" {
-   logLabel.setText(logLabel.getText() + "<font color=\"red\">save folder path is not set</font><br>")
+if trim(config.saveFolderPath) == "" {
+   pushLog("Error: save folder path is not set!!!")
 }
 if !exists(config.saveFolderPath) {
-   logLabel.setText(logLabel.getText() + "<font color=\"red\">save folder path [" + config.saveFolderPath + "] is not exists</font><br>")
+   pushLog("Error: save folder path [" + config.saveFolderPath + "] is not exists!!!")
 }
 
 bot = TelegramBot(config.botToken)

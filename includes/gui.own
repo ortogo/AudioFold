@@ -10,7 +10,7 @@ botTokenField = newTextField()
 saveFolderPathField = newTextField()
 usernameField = newTextField()
 
-logLabel = newLabel("<html>Program log<br>")
+logTextArea = newTextArea("Program log\n")
 aboutLabel = newLabel(ABOUT_TEXT)
 waitingLabel = newLabel("*")
 progressBarLabel = newLabel("done")
@@ -98,7 +98,7 @@ statusPanel.add(progressBarLabel)
 // Init mainPanel
 mainPanel = newPanel(borderLayout(HGAP, VGAP))
 mainPanel.setPreferredSize(470, 400)
-mainPanel.add(logLabel, BorderLayout.CENTER)
+mainPanel.add(logTextArea, BorderLayout.CENTER)
 mainPanel.add(buttonPanel, BorderLayout.NORTH)
 mainPanel.add(statusPanel, BorderLayout.SOUTH)
 
@@ -142,6 +142,6 @@ def updateWaitingGauge() {
 }
 
 def pushLog(text) {
-   logLabel.setText(logLabel.getText() + text + "<br>")
+   logTextArea.setText(logTextArea.getText() + text + "\n")
 }
 
