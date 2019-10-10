@@ -45,7 +45,7 @@ startButton.onClick(def () {
 })
 
 configButton.onClick(def () {
-   if isWorked && !isStopped {
+   if isWorked {
       isWorked = false
    }
    botTokenField.setText(config.botToken)
@@ -59,8 +59,9 @@ saveConfigButton.onClick(def () {
    config.saveFolderPath = trim(saveFolderPathField.getText())
    config.username = trim(usernameField.getText())
    saveConfig(config)
-   configWindow.dispose()
    clearLog()
+   updateTelegramBot()
+   configWindow.dispose()
    checkConfig()
 })
 

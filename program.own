@@ -125,3 +125,7 @@ def handleException(type, message) {
    return -1
 }
 
+def updateTelegramBot() {
+   bot.setToken(config.botToken)
+}
+
