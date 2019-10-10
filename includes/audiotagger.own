@@ -3,7 +3,7 @@ def writeTags(path, artist, title, thumbPath = "") {
    FieldKey = newClass("org.jaudiotagger.tag.FieldKey")
    File = newClass("java.io.File")
 
-   storedFile = File.new(path)
+   storedFile = new File(path)
    af = AudioFileIO.read(storedFile)
    tag = af.getTag()
    // проверяем есть ли автор, если нет, то пишем теги
@@ -16,10 +16,10 @@ def writeTags(path, artist, title, thumbPath = "") {
       if length(thumbPath) > 0 {
         pushLog("Writing thumb...")
          
-        imageFile = File.new(thumbPath)
+        imageFile = new File(thumbPath)
 
         Artwork = newClass("org.jaudiotagger.tag.images.StandardArtwork")
-        art = Artwork.new()
+        art = new Artwork()
         art.setFromFile(imageFile)
         tag.setField(art)
         delete(thumbPath)
