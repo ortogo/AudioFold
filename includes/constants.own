@@ -5,6 +5,8 @@ ABOUT_TEXT = "<html><center>About AudioFold v" + VERSION + "</center><br><p>Tele
 CONFIG_PATH = "./config.json"
 CONFIG_TEMPLATE = { "botToken":"", "saveFolderPath": "", "username": "", "lastUpdateId": 0}
 
+EXCEPTION_TEMPLATE = "Bot doesn't work, because you config is wrong or disconected. Error: [%s] %s"
+
 HGAP = 10
 VGAP = 10
 MBYTES = 1048576.0

@@ -71,32 +71,12 @@ def waitingUpdates() {
    isStopped = false
    pushLog("Started. Waiting for updates...")
    while isWorked {
-      updates = bot.getUpdates(bot, config.lastUpdateId+1, def(update) {
-         //println update
-         results = update["result"]
-         for result : results {
-            updateId = int(result["update_id"])
-            if config.lastUpdateId < updateId {
-               config.lastUpdateId = updateId
-            }
-            println config.lastUpdateId
-            pushLog("Update: " + config.lastUpdateId)
-
-            if default(result["message"]["chat"], "") != "" {
-               chatUsername = default(result["message"]["chat"]["username"], "")
-               if trim(chatUsername) != trim(config.username) {
-                  pushLog("Knok knok from " + chatUsername)
-                  continue
-               }
-            }
-            if default(result["message"]["audio"], "") != "" {
-               //println result["message"]
-               processAudio(result["message"]["audio"])
-            } else {
-               pushLog("No audio, text: " + default(result["message"]["text"], "null"))
-            }
-         }
-      })
+      state = try(::handleUpdates, ::handleException)
+      if state == -1 {
+         isWorked = false
+         isStopped = true
+         break
+      }
       updateWaitingGauge()
       sleep(500)
    }
@@ -104,5 +84,39 @@ def waitingUpdates() {
    isStopped = true
    pushLog("Stopped waiting")
    //startButton.setText("Start")
+}
+
+def handleUpdates() {
+   bot.getUpdates(bot, config.lastUpdateId+1, def(update) {
+      //println update
+      results = update["result"]
+      for result : results {
+         updateId = int(result["update_id"])
+         if config.lastUpdateId < updateId {
+            config.lastUpdateId = updateId
+         }
+         println config.lastUpdateId
+         pushLog("Update: " + config.lastUpdateId)
+
+         if default(result["message"]["chat"], "") != "" {
+            chatUsername = default(result["message"]["chat"]["username"], "")
+            if trim(chatUsername) != trim(config.username) {
+               pushLog("Knok knok from " + chatUsername)
+               return 0
+            }
+         }
+         if default(result["message"]["audio"], "") != "" {
+            //println result["message"]
+            processAudio(result["message"]["audio"])
+         } else {
+            pushLog("No audio, text: " + default(result["message"]["text"], "null"))
+         }
+      }
+   })
+}
+
+def handleException(type, message) {
+   pushLog(sprintf(EXCEPTION_TEMPLATE, type, message))
+   return -1
 }
 
