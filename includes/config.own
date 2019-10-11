@@ -1,6 +1,7 @@
 class Config {
 
-   def Config(path) {
+   def Config(path, defLog) {
+      this.defLog = defLog
       this.path = path
       this.init()
    }
@@ -13,7 +14,7 @@ class Config {
       if !exists(this.path) {
          // записываем пустой конфиг
          this.unpackFields(CONFIG_TEMPLATE)
-         this.saveConfig()
+         this.save()
          return 0
       }
       // читаем конфиг
@@ -39,15 +40,29 @@ class Config {
       return newConfig
    }
 
-   def saveConfig() {
-      println "Saving config..."
+   def save() {
+      this.defLog("Saving config...")
       newConfig = this.packFields()
       jsonString = jsonencode(newConfig)
       configFile = fopen(this.path, "w")
       writeLine(configFile, jsonString)
       fclose(configFile)
-      println "Config saved!"
+      this.defLog("Config saved!")
    }
 
+   def check() {
+      if trim(this.botToken) == "" {
+         this.defLog("Error: bot token is not set!!!")
+      }
+      if trim(this.username) == "" {
+         this.defLog("Error: your username is not set!!!")
+      }
+      if trim(this.saveFolderPath) == "" {
+         this.defLog("Error: save folder path is not set!!!")
+      }
+      if !exists(this.saveFolderPath) {
+         this.defLog("Error: save folder path [" + this.saveFolderPath + "] is not exists!!!")
+      }
+   }
 }
 

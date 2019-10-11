@@ -26,7 +26,7 @@ aboutWindow = newWindow("About AudioFold")
 
 mainWindow.addWindowListener(def(type, event) {
    if event.id == WindowEvent.WINDOW_CLOSING {
-      config.saveConfig()
+      config.save()
       isWorked = false
    }
 })
@@ -58,11 +58,11 @@ saveConfigButton.onClick(def () {
    config.set("botToken", trim(botTokenField.getText()))
    config.set("saveFolderPath", trim(saveFolderPathField.getText()))
    config.set("username", trim(usernameField.getText()))
-   config.saveConfig()
+   config.save()
    clearLog()
    updateTelegramBot()
    configWindow.dispose()
-   checkConfig()
+   config.check()
 })
 
 cancelConfigButton.onClick(def () {
@@ -150,21 +150,10 @@ def pushLog(text) {
    logTextArea.setText(logTextArea.getText() + text + "\n")
 }
 
-def checkConfig() {
-   if trim(config.botToken) == "" {
-      pushLog("Error: bot token is not set!!!")
-   }
-   if trim(config.username) == "" {
-      pushLog("Error: your username is not set!!!")
-   }
-   if trim(config.saveFolderPath) == "" {
-      pushLog("Error: save folder path is not set!!!")
-   }
-   if !exists(config.saveFolderPath) {
-      pushLog("Error: save folder path [" + config.saveFolderPath + "] is not exists!!!")
-   }
-}
-
 def clearLog() {
    logTextArea.setText("Program log\n")
+}
+
+def downloadProgress(progress, bytesDownloaded, bytesMax) {
+   progressBar.setValue(progress)
 }

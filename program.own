@@ -1,23 +1,18 @@
 use ["downloader", "files", "forms", "functional", "http", "java", "json", "std", "types"]
 
 include "includes/constants.own"
-include "includes/gui.own"
 include "includes/config.own"
+include "includes/gui.own"
 include "includes/telegram_api.own"
 include "includes/audiotagger.own"
-
-config = new Config(CONFIG_PATH)
 
 isWorked = false
 isStopped = true
 
-checkConfig()
+config = new Config(CONFIG_PATH, ::pushLog)
+config.check()
 
 bot = new TelegramBot(config.botToken)
-
-def downloadProgress(progress, bytesDownloaded, bytesMax) {
-   progressBar.setValue(progress)
-}
 
 def processAudio(audio) {
 fileId = audio["file_id"]
@@ -84,7 +79,7 @@ def waitingUpdates() {
       }
       sleep(500)
    }
-   config.saveConfig()
+   config.save()
    isStopped = true
    progressBar.setIndeterminate(false)
    pushLog("Stopped waiting")
