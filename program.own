@@ -93,7 +93,7 @@ def handleUpdates() {
       for result : results {
          updateId = int(result["update_id"])
          if config.lastUpdateId < updateId {
-            config.lastUpdateId = updateId
+            config.set("lastUpdateId", updateId)
          }
          println config.lastUpdateId
          pushLog("Update: " + config.lastUpdateId)
