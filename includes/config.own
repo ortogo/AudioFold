@@ -1,22 +1,53 @@
-def initConfig() {
-   if !exists(CONFIG_PATH) {
-      // записываем пустой конфиг
-      saveConfig(CONFIG_TEMPLATE)
-      return CONFIG_TEMPLATE
-   }
-   // читаем конфиг
-   configFile = fopen(CONFIG_PATH, "r")
-   jsonString = readText(configFile)
-   fclose(configFile)
-   return jsondecode(jsonString)
-}
+class Config {
 
-def saveConfig(newConfig) {
-   println "Saving config..."
-   jsonString = jsonencode(newConfig)
-   configFile = fopen(CONFIG_PATH, "w")
-   writeLine(configFile, jsonString)
-   fclose(configFile)
-   println "Config saved!"
+   def Config(path) {
+      this.path = path
+      this.init()
+   }
+
+   def set(key, value) {
+      this[key] = value
+   }
+
+   def init() {
+      if !exists(this.path) {
+         // записываем пустой конфиг
+         this.unpackFields(CONFIG_TEMPLATE)
+         this.saveConfig()
+         return 0
+      }
+      // читаем конфиг
+      configFile = fopen(this.path, "r")
+      jsonString = readText(configFile)
+      fclose(configFile)
+
+      jsonArray = jsondecode(jsonString)
+      this.unpackFields(jsonArray)
+   }
+
+   def unpackFields(jsonArray) {
+      for key, value : jsonArray {
+         this[key] = trim(value)
+      }
+   }
+
+   def packFields() {
+      newConfig = CONFIG_TEMPLATE
+      for key, value : newConfig {
+         newConfig[key] = trim(this[key])
+      }
+      return newConfig
+   }
+
+   def saveConfig() {
+      println "Saving config..."
+      newConfig = this.packFields()
+      jsonString = jsonencode(newConfig)
+      configFile = fopen(this.path, "w")
+      writeLine(configFile, jsonString)
+      fclose(configFile)
+      println "Config saved!"
+   }
+
 }
 

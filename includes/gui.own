@@ -26,7 +26,7 @@ aboutWindow = newWindow("About AudioFold")
 
 mainWindow.addWindowListener(def(type, event) {
    if event.id == WindowEvent.WINDOW_CLOSING {
-      saveConfig(config)
+      config.saveConfig()
       isWorked = false
    }
 })
@@ -55,10 +55,10 @@ configButton.onClick(def () {
 })
 
 saveConfigButton.onClick(def () {
-   config.botToken = trim(botTokenField.getText())
-   config.saveFolderPath = trim(saveFolderPathField.getText())
-   config.username = trim(usernameField.getText())
-   saveConfig(config)
+   config.set("botToken", trim(botTokenField.getText()))
+   config.set("saveFolderPath", trim(saveFolderPathField.getText()))
+   config.set("username", trim(usernameField.getText()))
+   config.saveConfig()
    clearLog()
    updateTelegramBot()
    configWindow.dispose()

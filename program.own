@@ -6,7 +6,7 @@ include "includes/config.own"
 include "includes/telegram_api.own"
 include "includes/audiotagger.own"
 
-config = initConfig()
+config = new Config(CONFIG_PATH)
 
 isWorked = false
 isStopped = true
@@ -84,7 +84,7 @@ def waitingUpdates() {
       }
       sleep(500)
    }
-   saveConfig(config)
+   config.saveConfig()
    isStopped = true
    progressBar.setIndeterminate(false)
    pushLog("Stopped waiting")
